@@ -1,36 +1,41 @@
 const fs = require('fs')
+const dataRefactoring = require('./dataRefactoring')
 
 const currentPath = process.cwd()
-const langList = []
 
 const ERROR_READ_DIR_FILE = '디렉토리의 파일을 읽는데 실패하였습니다.'
+const ERROR_NO_FILE_IN_DIR = '디렉토리에 파일이 없습니다.'
 
-exports.findFileFromPath = () => {
-  const relativePath = '/src/lang/'
-  console.log(process.cwd() + relativePath)
-  fs.readdir(currentPath + relativePath, function (error, fileList) {
-    if (fileList) {
+
+
+exports.makeJsonForXls = (relativePath) => {
+  findFileFromPath(relativePath)
+}
+
+const findFileFromPath = (relativePath) => {
+  let list = []
+  try {
+    fs.readdir(currentPath + relativePath, (error, fileList) => {
+      if (!fileList) {
+        console.log(ERROR_NO_FILE_IN_DIR)
+        return
+      }
       fileList
-        .filter(f => f.indexOf('index') == -1 || !f)
+        // .filter(f => f.indexOf('index') == -1 || !f)
+        .filter(f => f.indexOf('en') > -1 || !f)
         .forEach(fileName => {
-          readFile(currentPath + relativePath + fileName)
+          readFile(currentPath + relativePath, fileName)
         })
-    } else {
-      console.log(ERROR_READ_DIR_FILE)
-    }
-  })
+    })
+  } catch (e) {
+    console.log(ERROR_READ_DIR_FILE)
+    console.log(e)
+  }
+  return list
 }
 
-const readFile = (pathFileName) => {
-  const jsonLang = require(pathFileName)
+const readFile = (totalPath, fileName) => {
+  const langCode = require(totalPath + fileName)
   // langList.push(jsonLang)
-  refactoring(jsonLang)
-}
-
-const refactoring = (jsonLang) => {
-  const refactoringLang = {}
-  // console.log(jsonLang)
-  Object.keys(jsonLang).forEach(k => {
-    console.log('>>>>> 키값 : '+k + ', 데이터값 : ' + Object.keys(jsonLang[k]));
-  })
+  dataRefactoring.refactoring(fileName, langCode, '/')
 }

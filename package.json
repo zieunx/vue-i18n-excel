@@ -4,12 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "babel-node src -w -d dist/js"
+    "build": "babel-node src -w -d dist/js",
+    "cmd": "babel-node bin/vi-trans"
   },
   "author": "https://winterroom.tistory.com/",
   "license": "ISC",
   "bin": {
-    "vi-trans": "babel-node ./bin/vi-trans"
+    "vi-trans": "babel-node bin/vi-trans"
   },
   "devDependencies": {
     "@babel/cli": "^7.10.5",
@@ -17,5 +18,8 @@
     "@babel/node": "^7.10.5",
     "@babel/plugin-proposal-class-properties": "^7.10.4",
     "@babel/preset-env": "^7.10.4"
+  },
+  "dependencies": {
+    "json2xls": "^0.1.2"
   }
 }

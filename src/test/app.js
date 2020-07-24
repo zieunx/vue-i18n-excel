@@ -3,5 +3,5 @@
 const fileFinder = require('./fileFinder')
 
 exports.main = () => {
-  fileFinder.findFileFromPath()
+  fileFinder.makeJsonForXls('/src/lang/')
 }
