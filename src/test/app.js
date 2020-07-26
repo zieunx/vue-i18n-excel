@@ -3,5 +3,5 @@
 const fileFinder = require('./fileFinder')
 
 exports.main = () => {
-  fileFinder.makeJsonForXls('/src/lang/')
+  fileFinder.makeJsonForXls('/src/lang/', 'ko.js')
 }

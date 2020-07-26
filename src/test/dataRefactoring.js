@@ -1,6 +1,6 @@
 
 let langJson = {}
-let contents = {}
+let refactoringCode = {}
 
 const ERROR_MAKE_PROPERTY = '프로퍼티를 만드는데 실패하였습니다.'
 
@@ -10,11 +10,12 @@ exports.refactoring = (fileName, langCode, separator) => {
   console.log('\n')
   console.log('[ ' + fileName + ']\n')
 
-  contents = {}
+  refactoringCode = {}
   makeContents(langCode, separator)
-  console.log('============================ 결과 ================================')
-  console.log(contents)
-  langJson[fileName] = contents
+  // console.log('============================ 결과 ================================')
+  // console.log(refactoringCode)
+  // langJson[fileName] = contents
+  return refactoringCode
 }
 
 const makeContents = (langCode, separator) => {
@@ -41,6 +42,6 @@ const callContent = (parentKey, langCode, separator) => {
 }
 
 const addProperty = (property, value) => {
-  contents[property] = value
+  refactoringCode[property] = value
 }
 
