@@ -1,4 +1,5 @@
 const fs = require('fs')
+const moment = require('moment')
 const excel = require('excel4node')
 const dataRefactoring = require('./dataRefactoring')
 
@@ -11,6 +12,8 @@ const defaultSheetName = 'sheet 1'
 const ERROR_READ_DIR_FILE = '디렉토리의 파일을 읽는데 실패하였습니다.'
 const ERROR_NO_FILE_IN_DIR = '디렉토리에 파일이 없습니다.'
 const ERROR_READ_FILE = '파일의 내용을 읽는데 실패하였습니다.'
+const ERROR_DEFAULT_JSON = 'default JSON을 만드는데 실패했습니다.'
+const ERROR_WORKBOOK_WRITE = 'work-book.write() 실행 중 에러가 발생하였습니다.'
 
 
 
@@ -18,6 +21,8 @@ exports.makeJsonForXls = async (relativePath, primaryFileName) => {
   const fileNames = await findFileNamesFromPath(relativePath)
   const jsonAboutLang = await filesToJsonAboutLang(relativePath, fileNames)
   const resultJson = await jsonForXls(primaryFileName, jsonAboutLang)
+  resultJson.fileName = 'Vmaker_언어프로퍼티_정리'
+  resultJson.sheetName = 'Vmaker language'
   await exportExcel(resultJson)
 }
 
@@ -87,12 +92,17 @@ const jsonForXls = async (primaryFileName, jsonAboutLang) => {
     cols: [],
     rows: []
   }
-  const excludeFileNames = Object.keys(jsonAboutLang)
-  excludeFileNames.splice(excludeFileNames.indexOf(primaryFileName), 1)
-  console.log(excludeFileNames)
+  try {
+    const excludeFileNames = Object.keys(jsonAboutLang)
+    excludeFileNames.splice(excludeFileNames.indexOf(primaryFileName), 1)
+    console.log(excludeFileNames)
 
-  makeJson.cols = await makeCols(primaryFileName, excludeFileNames)
-  makeJson.rows = await makeRows(jsonAboutLang, primaryFileName, excludeFileNames)
+    makeJson.cols = await makeCols(primaryFileName, excludeFileNames)
+    makeJson.rows = await makeRows(jsonAboutLang, primaryFileName, excludeFileNames)
+  } catch (e) {
+    console.log(ERROR_DEFAULT_JSON)
+    console.log(e)
+  }
 
   return makeJson
 }
@@ -127,14 +137,20 @@ const makeRows = (jsonAboutLang, primaryFileName, excludeFileNames) => {
 const exportExcel = async (conf) => {
   const workbook = new excel.Workbook()
 
-  const fileName = (conf.fileName ? conf.fileName : defaultFileName) + defaultFileType
+  const fileName = (conf.fileName ? conf.fileName : defaultFileName) +
+    '_' +
+    moment(moment.now()).format('YYYYMMDD') +
+    '_' +
+    moment(moment.now()).format('HHmmss') +
+    defaultFileType
+
   const sheetName = conf.sheetName ? conf.sheetName : defaultSheetName
 
   const worksheet = workbook.addWorksheet(sheetName)
 
   const colStyle = workbook.createStyle({
     font: {
-      color: '#0e3fa0',
+      color: '#cb051a',
       size: 12
     }
   })
@@ -155,5 +171,10 @@ const exportExcel = async (conf) => {
       worksheet.cell(rowsIndex + 2, valIndex + 1).string(val).style(rowStyle)
     })
   })
-  workbook.write(fileName)
+  try {
+    workbook.write(fileName)
+  } catch (e) {
+    console.log(ERROR_WORKBOOK_WRITE)
+    console.log(e)
+  }
 }
