@@ -17,9 +17,9 @@ const ERROR_WORKBOOK_WRITE = 'work-book.write() 실행 중 에러가 발생하�
 
 
 
-exports.makeJsonForXls = async (relativePath, primaryFileName) => {
+exports.makeXlsFromJson = async (relativePath, primaryFileName, separator) => {
   const fileNames = await findFileNamesFromPath(relativePath)
-  const jsonAboutLang = await filesToJsonAboutLang(relativePath, fileNames)
+  const jsonAboutLang = await filesToJsonAboutLang(relativePath, fileNames, separator)
   const resultJson = await jsonForXls(primaryFileName, jsonAboutLang)
   resultJson.fileName = 'Vmaker_언어프로퍼티_정리'
   resultJson.sheetName = 'Vmaker language'
@@ -53,13 +53,13 @@ const findFileNamesFromPath = async (relativePath) => {
   return list
 }
 
-const filesToJsonAboutLang = async (relativePath, fileNames) => {
+const filesToJsonAboutLang = async (relativePath, fileNames, separator) => {
   let jsonForXls = {}
   fileNames = fileNames.filter(f => f.indexOf('index') == -1 || !f)
 
   for (const fileName of fileNames) {
     let fileCode = await readFile(currentPath + relativePath, fileName)
-    let refactoringCode = await dataRefactoring.refactoring(fileName, fileCode, '/')
+    let refactoringCode = await dataRefactoring.refactoring(fileName, fileCode, separator)
     jsonForXls[fileName] = refactoringCode
   }
   return jsonForXls
