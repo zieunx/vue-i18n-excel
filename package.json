@@ -1,17 +1,18 @@
 {
-  "name": "vue-i18n-export-import",
+  "name": "vue-i18n-excel",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "build": "babel-node src -w -d dist/js",
-    "cmd": "babel-node bin/vi-trans"
+    "cmd": "babel-node bin/vue-i18n-excel"
   },
   "author": "https://winterroom.tistory.com/",
   "license": "ISC",
   "bin": {
-    "vi-trans": "babel-node bin/vi-trans"
+    "vue-i18n-excel": "bin/vue-i18n-excel"
   },
+  "preferGlobal": true,
   "devDependencies": {
     "@babel/cli": "^7.10.5",
     "@babel/core": "^7.10.5",
@@ -22,7 +23,9 @@
   "dependencies": {
     "excel4node": "^1.7.2",
     "json2xls": "^0.1.2",
+    "merge-deep": "^3.0.2",
     "moment": "^2.27.0",
+    "progress": "^2.0.3",
     "xlsx": "^0.16.4"
   }
 }

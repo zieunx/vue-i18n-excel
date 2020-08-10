@@ -1,14 +1,49 @@
 const xlsx = require('xlsx')
-const savePath = './src/result/'
+const fs = require('fs')
+const merge = require('merge-deep')
 
-exports.makeJsonFromXls = async (relativePath, excelFileName, separator) => {
+const savePath = './src/result/json'
+let separator = '/'
+
+String.prototype.replaceAll = (org, dest) => {
+  return this.split(org).join(dest)
+}
+
+
+exports.makeJsonFromXls = async (relativePath, excelFileName, InputSeparator) => {
+  separator = InputSeparator
   const excelFile = await xlsx.readFile(relativePath + excelFileName)
 
   // console.log(excelFile.Sheets)
   const totalJson = await makeJson(excelFile.Sheets)
-  jsonToLangFile(separator, totalJson)
+  jsonToLangFile(totalJson)
 }
 
+const jsonToLangFile = (totalLangJson) => {
+  Object.keys(totalLangJson).forEach(langFileName => {
+    const file = savePath + langFileName + '.js'
+    // console.log(file)
+    // console.log(totalLangJson[langFileName])
+    const content = JSON.stringify(totalLangJson[langFileName]).toString().split('"').join('\'')
+    try {
+      fs.writeFile(
+        savePath + langFileName + '.js',
+        'export default '+ content,
+        err => {
+          if (err) {
+            console.log('!!!!!!! 에러 발생 1 !!!!!!!')
+            console.log(err)
+          } else {
+            console.log('성공')
+          }
+        }
+      )
+    } catch (e) {
+      console.log('!!!!!!! 에러 발생 2 !!!!!!!')
+      console.log(e)
+    }
+  })
+}
 
 const makeJson = async (sheets) => {
   const sheetNames = Object.keys(sheets).sort()
@@ -18,28 +53,9 @@ const makeJson = async (sheets) => {
   cells = cells.filter(cell => !cell.includes('!'))
 
   let totalLangJson = await getTotalLangJson(currentSheet, cells)
-  console.log(totalLangJson)
+  // console.log(totalLangJson)
 
   return totalLangJson
-}
-
-const jsonToLangFile = (separator, totalLangJson) => {
-  Object.keys(totalLangJson).forEach(langFileName => {
-    const file = savePath + langFileName + '.js'
-    console.log(file)
-    try {
-      fs.writeFile(savePath + langFileName + '.js', 'export default test', err => {
-        if (err) {
-          console.log('!!!!!!! 에러 발생 1 !!!!!!!')
-          console.log(err)
-        } else {
-          console.log('성공')
-        }
-      })
-    } catch (e) {
-      console.log('!!!!!!! 에러 발생 2 !!!!!!!')
-    }
-  })
 }
 
 const getTotalLangJson = async (currentSheet, cells) => {
@@ -58,19 +74,37 @@ const getTotalLangJson = async (currentSheet, cells) => {
     const fileName = currentSheet[currentCol + fileNameRow].v
     totalLangJson[fileName] = getLangJson(currentSheet, defaultCol, currentCol, rows)
   }
+  console.log('\n ********* result ********* \n', JSON.parse(JSON.stringify(totalLangJson)))
   return totalLangJson
 }
 
-const getLangJson = (currentSheet,defaultCol, currentCol, rows) => {
-  const json = {}
+
+const getLangJson = (currentSheet, defaultCol, currentCol, rows) => {
+  // console.log(rows)
+  let json = {}
   for (const row of rows) {
     const defaultCell = defaultCol + row.toString()
     const cell = currentCol + row.toString()
-    // console.log(cell)
-    // console.log(currentSheet[cell].v)
-    // console.log('------------------------')
-    json[currentSheet[defaultCell].v] = currentSheet[cell].v
+    const propertyArr = currentSheet[defaultCell].v.split(separator)
+    const value =currentSheet[cell].v
+    // console.log('propertyArr : ' + propertyArr)
+    // console.log('value : ' + value)
+
+    // console.log('\n\n**********\n jsonFromProperty() : ', jsonFromProperty(propertyArr, 0, currentSheet[cell].v))
+    const addJson = jsonFromProperty(propertyArr, 0, currentSheet[cell].v)
+    json = merge(json, addJson)
+    console.log(json)
   }
+  return json
+}
+
+const jsonFromProperty = (propertyArr, index, value) => {
+  let json = {}
+  if (propertyArr.length - 1 === index) { // 마지막 depth인 경우
+    json[propertyArr[index]] = value
+    return json
+  }
+  json[propertyArr[index]] = jsonFromProperty(propertyArr, index + 1, value)
   return json
 }
 
