@@ -23,7 +23,7 @@
   "dependencies": {
     "excel4node": "^1.7.2",
     "json2xls": "^0.1.2",
-    "merge-deep": "^3.0.2",
+    "merge-deep": "^3.0.3",
     "moment": "^2.27.0",
     "progress": "^2.0.3",
     "xlsx": "^0.16.4"
