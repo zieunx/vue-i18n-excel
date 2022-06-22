@@ -4,4 +4,4 @@ const cli = require('../src/main/index')
 
 cli.cli()
 
-// console.log('this is vi-trans')
+console.log('this is vue-i18n-excel')
